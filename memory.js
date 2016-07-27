@@ -1,5 +1,4 @@
 var runningSessionDetails = {};
-var minionDetails = {};
 var minionHosts = {};
 
 var memoryOperations = {
@@ -10,34 +9,7 @@ var memoryOperations = {
             return runningSessionDetails[sessionid].minionUrl;
         }
     },
-    getTrainingSessionsInMinion : function (minionId) {
-        if (minionDetails[minionId] === undefined){
-            return null;
-        }else{
-            return minionDetails[minionId].trainingSessions;
-        }
-    },
-    getRunningSessionsInMinion : function (minionId) {
-        if (minionDetails[minionId] === undefined){
-            return null;
-        }else{
-            return minionDetails[minionId].runningSessions;
-        }
-    },  
-    getAllMinionIds : function () {
-        var minionIds = [];
-        for (var minionId in minionDetails){
-            minionIds.push(minionId);
-        }
-        return minionIds;
-    },
-    getUrlForMinionId : function (minionId) {
-        if (minionId === null){
-            return null;
-        }else{
-            return minionDetails[minionId].minionUrl;
-        }
-    }
+    
 }
 
 
