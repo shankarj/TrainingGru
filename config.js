@@ -9,7 +9,8 @@ var configs = {
             debug    :  false
         },
         leaderMinionPort: 8001,
-        maxMinionsInHost : 5
+        maxMinionsInHost : 5,
+        scheduleStrategy: "force"
     }, production:{
         db:{
             connectionLimit : 100,
@@ -20,7 +21,8 @@ var configs = {
             debug    :  false
         },
         leaderMinionPort: 8001,
-        maxMinionsInHost : 5
+        maxMinionsInHost : 5,
+        scheduleStrategy: "force"
     },
 };
 

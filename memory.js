@@ -1,14 +1,17 @@
-var runningSessionDetails = {};
-var minionHosts = {};
+var runningSessionRouteMap = {};
+var minionHostsDetails = [];
 
 var memoryOperations = {
     getMinionUrlRunningSessionId : function (sessionid) {
-        if (runningSessionDetails[sessionid] === undefined){
+        if (runningSessionRouteMap[sessionid] === undefined){
             return null;
         }else{
-            return runningSessionDetails[sessionid].minionUrl;
+            return runningSessionRouteMap[sessionid].minionUrl;
         }
     },
+    getAllHostDetails : function(){
+        return minionHostsDetails;
+    }
     
 }
 
