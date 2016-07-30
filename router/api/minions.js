@@ -103,6 +103,15 @@ router.post('/leader/details/', function(req, res, next) {
 	}
 });
 
+router.post('/allsessions/', function(req, res, next) {
+	if (genUtils.isEmpty(req.body.sessionid)) {
+		var response = { status : "error", message : "One or more required params not provided to get details of all minions."};
+		res.json(response);
+	}else{
+		minionUtil.getAllMinionDetails(res);
+	}
+});
+
 router.post('/details/', function(req, res, next) {
 	if ((genUtils.isEmpty(req.body.sessionid)) || (genUtils.isEmpty(req.body.minionid))) {
 		var response = { status : "error", message : "One or more required params not provided to get details of minion."};
