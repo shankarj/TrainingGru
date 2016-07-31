@@ -87,7 +87,7 @@ router.post('/stop/', function(req, res, next) {
 			});       
 		}
 	}
-});
+});+
 
 router.post('/delete/', function(req, res, next) {
 	if (genUtils.isEmpty(req.body.sessionid)){

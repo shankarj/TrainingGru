@@ -4,12 +4,12 @@ var memory = require('../memory.js');
 var genUtils = require('../utils/general.js');
 
 var utilMethods = {
-    getMinionList: function (minionId, res) {
+    getMinionsInLeader: function (minionId, res) {
         var minionLeaderId = minionId.split(":")[0];
         var minionLeaderUrl = "http://" + minionLeaderId + ":" + config[process.env.environment].leaderMinionPort;
 
         var options = {
-            url: minionLeaderUrl + "/minionslist/",
+            url: minionLeaderUrl + "/minionsinleader/",
             method: 'POST',
             json: {
                 "minionid": minionLeaderId,
@@ -32,7 +32,7 @@ var utilMethods = {
         var minionLeaderUrl = "http://" + minionLeaderId + ":" + config[process.env.environment].leaderMinionPort;
 
         var options = {
-            url: minionLeaderUrl + "/details/",
+            url: minionLeaderUrl + "/leaderdetails/",
             method: 'POST',
             json: {
                 "minionid": minionLeaderId,
@@ -96,9 +96,9 @@ var utilMethods = {
         });
 
     },
-    getAllMinionDetails: function (res) {
+    getAllSessions: function (res) {
         var allHostDetails = memory.getAllHostDetails();
-        var finalResponse = {status: "", message: {}};
+        var finalResponse = { status: "", message: {} };
         var hasErrors = false;
         var totalReceived = 0;
 
@@ -126,7 +126,7 @@ var utilMethods = {
                     hasErrors = true;
                 }
 
-                if (totalReceived >= allHostDetails.length){
+                if (totalReceived >= allHostDetails.length) {
                     res.json(finalResponse);
                 }
             });
@@ -199,7 +199,7 @@ var utilMethods = {
                 var minionLeaderId = choosenHost.leaderId;
                 var minionLeaderUrl = "http://" + minionLeaderId.split(":")[0] + ":" + config[process.env.environment].leaderMinionPort;
                 var options = {
-                    url: minionLeaderUrl + "/start/",
+                    url: minionLeaderUrl + "/create/",
                     method: 'POST',
                     json: {
                         "sessionid": sessionId,
