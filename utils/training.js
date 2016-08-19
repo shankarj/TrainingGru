@@ -6,7 +6,7 @@ var utilMethods = {
 	deleteTrainingSession : function (sessionId, minionLeaderId, resObject){
 		var minionLeaderUrl = "http://" + minionLeaderId.split(":")[0] + ":" + config[process.env.environment].leaderMinionPort;
 		var options = {
-        	url :  minionLeaderUrl + "/delete/",
+        	url :  minionLeaderUrl + "/training/delete/",
         	method : 'POST',
 			json: {
 				"sessionid": sessionId,
@@ -27,7 +27,7 @@ var utilMethods = {
 	deleteAndCreateSession : function (sessionId, minionId, resObject, scheduleStrategy){
 		var minionLeaderUrl = "http://" + minionId.split(":")[0] + ":" + config[process.env.environment].leaderMinionPort;
 		var options = {
-        	url :  minionLeaderUrl + "/delete/",
+        	url :  minionLeaderUrl + "/training/delete/",
         	method : 'POST',
 			json: {
 				"sessionid": sessionId,
@@ -60,7 +60,7 @@ var utilMethods = {
 			var minionLeaderId = choosenHost.leaderId;
 			var minionLeaderUrl = "http://" + minionLeaderId.split(":")[0] + ":" + config[process.env.environment].leaderMinionPort;
 			var options = {
-				url :  minionLeaderUrl + "/start/",
+				url :  minionLeaderUrl + "/training/start/",
 				method : 'POST',
 				json: {
 					"sessionid": sessionId,

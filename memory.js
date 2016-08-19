@@ -1,4 +1,4 @@
-var genUtils = require('utils/general.js');
+var genUtils = require('./utils/general.js');
 
 // This variable is for quick lookup during sandbox calls for deployed services.
 var runningSessionLookupMap = {};
@@ -6,9 +6,9 @@ var runningSessionLookupMap = {};
 // Details of all the hosts with minions running in them. 
 var minionHostsDetails = [
     {
-        leaderId: "sampleHostUrl:port",
+        leaderId: "localhost:port",
         maxMinionsCount: 10,
-        trainingSessions: [],
+        trainingSessions: ["sampleSession"],
         runningSessions: []
     }
 ];
@@ -35,7 +35,7 @@ var memoryOperations = {
     },
     addTrainingSessionToLeader: function (sessionId, leaderId) {
         if ((!genUtils.isEmpty(sessionId)) && (!genUtils.isEmpty(leaderId))) {
-            for (var hostJson in minionHostsDetails) {
+            for (var hostJson of minionHostsDetails) {
                 if (hostJson.leaderId === leaderId) {
                     hostJson.trainingSessions.push(sessionId);
                 }
@@ -51,7 +51,7 @@ var memoryOperations = {
     },
     getLeaderWithTrainingSession: function (sessionId) {
         var leaderId = null
-        for (var hostJson in minionHostsDetails) {
+        for (var hostJson of minionHostsDetails) {
             if (hostJson.trainingSessions.indexOf(sessionId) >= 0) {
                 leaderId = hostJson.leaderId;
                 break;
@@ -62,7 +62,7 @@ var memoryOperations = {
     },
     getLeaderWithRunningSession: function (sessionId) {
         var leaderId = null
-        for (var hostJson in minionHostsDetails) {
+        for (var hostJson of minionHostsDetails) {
             if (hostJson.runningSessions.indexOf(sessionId) >= 0) {
                 leaderId = hostJson.leaderId;
                 break;
@@ -73,7 +73,7 @@ var memoryOperations = {
     },
     getLeaderWithSession: function (sessionId) {
         var leaderId = null
-        for (var hostJson in minionHostsDetails) {
+        for (var hostJson of minionHostsDetails) {
             if ((hostJson.trainingSessions.indexOf(sessionId) >= 0) || (hostJson.runningSessions.indexOf(sessionId) >= 0)) {
                 leaderId = hostJson.leaderId;
                 break;

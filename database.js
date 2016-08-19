@@ -1,7 +1,7 @@
 var mysql = require('mysql');
-var dbConfig = require("./dbconfig.js");
+var dbConfig = require("./config.js");
 
-var pool = mysql.createPool(dbConfig[process.env.environment]);
+var pool = mysql.createPool(dbConfig[process.env.environment].db);
 
 var databaseMethods = {
     selectQuery : function (req, res, query) {

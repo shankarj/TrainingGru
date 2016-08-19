@@ -7,8 +7,8 @@ var minionUtil = require('../../utils/minion.js');
 var genUtils = require('../../utils/general.js');
 var config = require('../../config.js');
 
-router.post('/leader/create/', function (req, res, next) {
-	if (genUtils.isEmpty(req.body.sessionid)) {
+router.post('/create/', function (req, res, next) {
+	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.sessionid))) {
 		var response = { status: "error", message: "One or more required params not provided for create minion." };
 		res.json(response);
 	} else {
@@ -35,25 +35,31 @@ router.post('/leader/create/', function (req, res, next) {
 });
 
 router.post('/leaderofsession/', function (req, res, next) {
-	if ((genUtils.isEmpty(req.body.sessionid))) {
+	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.sessionid))) {
 		var response = { status: "error", message: "One or more required params not provided to get leader of a session." };
 		res.json(response);
 	} else {
-		var leaderId = memory.getLeaderWithSession(req.body.sessionid);
 		var response = { status: "", message: "" };
-		if (leaderId != null) {
-			response.status = "error";
-			response.message = "Session not found.";
-		} else {
-			response.status = "success";
-			response.message = { "leaderid": leaderId };
+
+		try {
+			var leaderId = memory.getLeaderWithSession(req.body.sessionid);
+			if (leaderId != null) {
+				response.status = "success";
+				response.message = { "leaderid": leaderId };
+			} else {
+				response.status = "error";
+				response.message = "Session not found.";
+			}
+		} catch (error) {
+			var response = { status: "error", message: error };
 		}
+
 		res.json(response);
 	}
 });
 
-router.post('/leader/minionofsession/', function (req, res, next) {
-	if ((genUtils.isEmpty(req.body.sessionid))) {
+router.post('/minionofsession/', function (req, res, next) {
+	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.sessionid))) {
 		var response = { status: "error", message: "One or more required params not provided to get minion of a session." };
 		res.json(response);
 	} else {
@@ -67,7 +73,7 @@ router.post('/leader/minionofsession/', function (req, res, next) {
 			response.status = "success";
 			var minionLeaderUrl = "http://" + minionLeaderId + ":" + config[process.env.environment].leaderMinionPort;
 			var options = {
-				url: minionLeaderUrl + "/minionofsession/",
+				url: minionLeaderUrl + "/minions/minionofsession/",
 				method: 'POST',
 				json: {
 					"sessionid": sessionId,
@@ -86,7 +92,7 @@ router.post('/leader/minionofsession/', function (req, res, next) {
 });
 
 router.post('/minionsinleader/', function (req, res, next) {
-	if ((genUtils.isEmpty(req.body.sessionid)) || (genUtils.isEmpty(req.body.leaderid))) {
+	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.leaderid))) {
 		var response = { status: "error", message: "One or more required params not provided to get list of minions in a leader." };
 		res.json(response);
 	} else {
@@ -95,7 +101,7 @@ router.post('/minionsinleader/', function (req, res, next) {
 });
 
 router.post('/leaderdetails/', function (req, res, next) {
-	if ((genUtils.isEmpty(req.body.sessionid)) || (genUtils.isEmpty(req.body.leaderid))) {
+	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.leaderid))) {
 		var response = { status: "error", message: "One or more required params not provided to get details of minion leader." };
 		res.json(response);
 	} else {
@@ -103,17 +109,12 @@ router.post('/leaderdetails/', function (req, res, next) {
 	}
 });
 
-router.post('/allsessions/', function (req, res, next) {
-	if (genUtils.isEmpty(req.body.sessionid)) {
-		var response = { status: "error", message: "One or more required params not provided to get list of all sessions." };
-		res.json(response);
-	} else {
-		minionUtil.getAllSessions(res);
-	}
+router.post('/all/', function (req, res, next) {
+	minionUtil.getAllSessions(res);
 });
 
 router.post('/miniondetails/', function (req, res, next) {
-	if ((genUtils.isEmpty(req.body.sessionid)) || (genUtils.isEmpty(req.body.minionid))) {
+	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.sessionid)) || (genUtils.isEmpty(req.body.minionid))) {
 		var response = { status: "error", message: "One or more required params not provided to get details of minion." };
 		res.json(response);
 	} else {
@@ -122,10 +123,13 @@ router.post('/miniondetails/', function (req, res, next) {
 });
 
 router.post('/delete/', function (req, res, next) {
-	if ((genUtils.isEmpty(req.body.sessionid)) || (genUtils.isEmpty(req.body.minionid))) {
+	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.sessionid)) || (genUtils.isEmpty(req.body.minionid))) {
 		var response = { status: "error", message: "One or more required params not provided for delete minion." };
 		res.json(response);
 	} else {
 		minionUtil.deleteMinion(req.body.minionid, res);
 	}
 });
+
+
+module.exports = router;

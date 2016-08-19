@@ -9,7 +9,7 @@ var utilMethods = {
         var minionLeaderUrl = "http://" + minionLeaderId + ":" + config[process.env.environment].leaderMinionPort;
 
         var options = {
-            url: minionLeaderUrl + "/minionsinleader/",
+            url: minionLeaderUrl + "/minions/list/",
             method: 'POST',
             json: {
                 "minionid": minionLeaderId,
@@ -32,7 +32,7 @@ var utilMethods = {
         var minionLeaderUrl = "http://" + minionLeaderId + ":" + config[process.env.environment].leaderMinionPort;
 
         var options = {
-            url: minionLeaderUrl + "/leaderdetails/",
+            url: minionLeaderUrl + "/minions/all/",
             method: 'POST',
             json: {
                 "minionid": minionLeaderId,
@@ -78,7 +78,7 @@ var utilMethods = {
         var minionLeaderUrl = "http://" + minionLeaderId + ":" + config[process.env.environment].leaderMinionPort;
 
         var options = {
-            url: minionLeaderUrl + "/miniondetails/",
+            url: minionLeaderUrl + "/minions/details/",
             method: 'POST',
             json: {
                 "minionid": minionLeaderId,
@@ -107,7 +107,7 @@ var utilMethods = {
             var minionLeaderUrl = "http://" + minionLeaderId + ":" + config[process.env.environment].leaderMinionPort;
 
             var options = {
-                url: minionLeaderUrl + "/miniondetails/",
+                url: minionLeaderUrl + "/minions/all/",
                 method: 'POST',
                 json: {
                     "minionid": minionLeaderId,
@@ -149,7 +149,7 @@ var utilMethods = {
             var minionLeaderId = choosenHost.leaderId;
             var minionLeaderUrl = "http://" + minionLeaderId.split(":")[0] + ":" + config[process.env.environment].leaderMinionPort;
             var options = {
-                url: minionLeaderUrl + "/create/",
+                url: minionLeaderUrl + "minions/create/",
                 method: 'POST',
                 json: {
                     "sessionid": sessionId,
@@ -199,7 +199,7 @@ var utilMethods = {
                 var minionLeaderId = choosenHost.leaderId;
                 var minionLeaderUrl = "http://" + minionLeaderId.split(":")[0] + ":" + config[process.env.environment].leaderMinionPort;
                 var options = {
-                    url: minionLeaderUrl + "/create/",
+                    url: minionLeaderUrl + "minions/create/",
                     method: 'POST',
                     json: {
                         "sessionid": sessionId,

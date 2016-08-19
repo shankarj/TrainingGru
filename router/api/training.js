@@ -36,7 +36,7 @@ router.post('/pause/', function(req, res, next) {
 		}else{
 			var minionLeaderUrl = "http://" + leaderId.split(":")[0] + ":" + config[process.env.environment].leaderMinionPort; 
 			var options = {
-				url :  minionLeaderUrl + "/pause/",
+				url :  minionLeaderUrl + "/training/pause/",
 				method : 'POST',
 				json: {
 					"sessionid": req.body.sessionid,
@@ -69,7 +69,7 @@ router.post('/stop/', function(req, res, next) {
 		}else{
 			var minionLeaderUrl = "http://" + leaderId.split(":")[0] + ":" + config[process.env.environment].leaderMinionPort; 
 			var options = {
-				url :  minionLeaderUrl + "/stop/",
+				url :  minionLeaderUrl + "/training/stop/",
 				method : 'POST',
 				json: {
 					"sessionid": req.body.sessionid,
