@@ -25,7 +25,6 @@ var utilMethods = {
                 res.json({ status: "success", message: retMsg });
             }
         });
-
     },
     getLeaderDetails: function (minionId, res) {
         var minionLeaderId = minionId.split(":")[0];
@@ -55,7 +54,7 @@ var utilMethods = {
         var minionLeaderUrl = "http://" + minionLeaderId + ":" + config[process.env.environment].leaderMinionPort;
 
         var options = {
-            url: minionLeaderUrl + "/delete/",
+            url: minionLeaderUrl + "/minions/delete/",
             method: 'POST',
             json: {
                 "minionid": minionLeaderId,
