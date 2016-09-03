@@ -8,7 +8,7 @@ var configs = {
             database: 'coredb',
             debug: false
         },
-        leaderMinionPort: 8001,
+        leaderMinionPort: 8081,
         trainingScheduleStrategy: "force",
         minionCreateStrategy: "force"
     }, production: {

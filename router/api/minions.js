@@ -12,7 +12,7 @@ router.post('/create/', function (req, res, next) {
 		var response = { status: "error", message: "One or more required params not provided for create minion." };
 		res.json(response);
 	} else {
-		var createStrategy = req.body.createstrategy === undefined ? req.body.createstrategy : config[process.env.environment].minionCreateStrategy;
+		var createStrategy = req.body.createstrategy === undefined ? config[process.env.environment].minionCreateStrategy : req.body.createstrategy;
 
 		switch (createStrategy) {
 			case 'forcesame':
@@ -63,21 +63,24 @@ router.post('/minionofsession/', function (req, res, next) {
 		var response = { status: "error", message: "One or more required params not provided to get minion of a session." };
 		res.json(response);
 	} else {
+		console.log("minionofsession: " + req.body.sessionid);
 		var minionLeaderId = memory.getLeaderWithSession(req.body.sessionid);
+
+		console.log("leaderid of session: " + minionLeaderId);
 		var response = { status: "", message: "" };
-		if (minionLeaderId != null) {
+		if (minionLeaderId === null) {
 			response.status = "error";
-			response.message = "Session not found.";
+			response.message = "No leader found for the given session.";
 			res.json(response);
 		} else {
-			response.status = "success";
-			var minionLeaderUrl = "http://" + minionLeaderId + ":" + config[process.env.environment].leaderMinionPort;
+			var minionLeaderUrl = "http://" + minionLeaderId;
+			console.log("constructed minion url: " + minionLeaderUrl);
+
 			var options = {
-				url: minionLeaderUrl + "/minions/minionofsession/",
+				url: minionLeaderUrl + "/api/minions/minionofsession/",
 				method: 'POST',
 				json: {
-					"sessionid": sessionId,
-					"authtoken": ""
+					"sessionid": req.body.sessionid
 				}
 			};
 
@@ -109,12 +112,12 @@ router.post('/leaderdetails/', function (req, res, next) {
 	}
 });
 
-router.post('/all/', function (req, res, next) {
+router.get('/all/', function (req, res, next) {
 	minionUtil.getAllSessions(res);
 });
 
 router.post('/miniondetails/', function (req, res, next) {
-	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.sessionid)) || (genUtils.isEmpty(req.body.minionid))) {
+	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.minionid))) {
 		var response = { status: "error", message: "One or more required params not provided to get details of minion." };
 		res.json(response);
 	} else {

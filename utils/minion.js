@@ -4,17 +4,12 @@ var memory = require('../memory.js');
 var genUtils = require('../utils/general.js');
 
 var utilMethods = {
-    getMinionsInLeader: function (minionId, res) {
-        var minionLeaderId = minionId.split(":")[0];
-        var minionLeaderUrl = "http://" + minionLeaderId + ":" + config[process.env.environment].leaderMinionPort;
+    getMinionsInLeader: function (minionLeaderId, res) {
+        var minionLeaderUrl = "http://" + minionLeaderId;
 
         var options = {
-            url: minionLeaderUrl + "/minions/list/",
-            method: 'POST',
-            json: {
-                "minionid": minionLeaderId,
-                "authtoken": ""
-            }
+            url: minionLeaderUrl + "/api/minions/list/",
+            method: 'GET',
         };
 
         request(options, function (error, response, body) {
@@ -22,21 +17,16 @@ var utilMethods = {
                 res.end(body);
             }
             else {
-                res.json({ status: "success", message: retMsg });
+                res.json({ status: "error", message: "Error with the leader while retrieving minions list." });
             }
         });
     },
-    getLeaderDetails: function (minionId, res) {
-        var minionLeaderId = minionId.split(":")[0];
-        var minionLeaderUrl = "http://" + minionLeaderId + ":" + config[process.env.environment].leaderMinionPort;
+    getLeaderDetails: function (minionLeaderId, res) {
+        var minionLeaderUrl = "http://" + minionLeaderId;
 
         var options = {
-            url: minionLeaderUrl + "/minions/all/",
-            method: 'POST',
-            json: {
-                "minionid": minionLeaderId,
-                "authtoken": ""
-            }
+            url: minionLeaderUrl + "/api/minions/all/",
+            method: 'GET',
         };
 
         request(options, function (error, response, body) {
@@ -44,7 +34,7 @@ var utilMethods = {
                 res.end(body);
             }
             else {
-                res.json({ status: "success", message: retMsg });
+                res.json({ status: "error", message: "Error while contacting leader." });
             }
         });
 
@@ -77,20 +67,19 @@ var utilMethods = {
         var minionLeaderUrl = "http://" + minionLeaderId + ":" + config[process.env.environment].leaderMinionPort;
 
         var options = {
-            url: minionLeaderUrl + "/minions/details/",
+            url: minionLeaderUrl + "/api/minions/miniondetails/",
             method: 'POST',
             json: {
-                "minionid": minionLeaderId,
-                "authtoken": ""
+                "minionid": minionId,
             }
         };
 
         request(options, function (error, response, body) {
             if (!error && response.statusCode == 200) {
-                res.end(body);
+                res.json(body);
             }
             else {
-                res.json({ status: "success", message: retMsg });
+                res.json({ status: "error", message: "Failed connection to leader." });
             }
         });
 
@@ -101,24 +90,20 @@ var utilMethods = {
         var hasErrors = false;
         var totalReceived = 0;
 
-        for (var hostJson in allHostDetails) {
+        allHostDetails.forEach(function (hostJson) {
             var minionLeaderId = hostJson.leaderId;
-            var minionLeaderUrl = "http://" + minionLeaderId + ":" + config[process.env.environment].leaderMinionPort;
+            var minionLeaderUrl = "http://" + minionLeaderId;
 
             var options = {
-                url: minionLeaderUrl + "/minions/all/",
-                method: 'POST',
-                json: {
-                    "minionid": minionLeaderId,
-                    "authtoken": ""
-                }
+                url: minionLeaderUrl + "/api/minions/all/",
+                method: 'GET',
             };
 
             request(options, function (error, response, body) {
                 totalReceived += 1;
-
                 if (!error && response.statusCode == 200) {
-                    finalResponse.message[minionLeaderId] = body;
+                    var retJson = JSON.parse(body);
+                    finalResponse.message[minionLeaderId] = retJson.miniondetails;
                 }
                 else {
                     finalResponse.message[minionLeaderId] = "error";
@@ -129,8 +114,7 @@ var utilMethods = {
                     res.json(finalResponse);
                 }
             });
-        }
-
+        });
     },
     createWithForceSame: function (body, res) {
         var choosenHost = memory.getBestFitHost();
@@ -181,7 +165,7 @@ var utilMethods = {
             resObject.json({ status: "error", message: "No host available for creating new minion." });
         }
 
-        var finalResponse = {};
+        var finalResponse = {status:"", message:{}};
         var actualCreateCount = choosenHost.maxMinionsCount - choosenHost.trainingSessions.length;
 
         if (actualCreateCount <= 0) {
@@ -196,12 +180,12 @@ var utilMethods = {
                     proceedWithCreate = false;
                 }
                 var minionLeaderId = choosenHost.leaderId;
-                var minionLeaderUrl = "http://" + minionLeaderId.split(":")[0] + ":" + config[process.env.environment].leaderMinionPort;
+                var minionLeaderUrl = "http://" + minionLeaderId;
                 var options = {
-                    url: minionLeaderUrl + "minions/create/",
+                    url: minionLeaderUrl + "/api/minions/create/",
                     method: 'POST',
                     json: {
-                        "sessionid": sessionId,
+                        "sessionid": body.sessionid,
                         "authtoken": ""
                     }
                 };
@@ -218,7 +202,7 @@ var utilMethods = {
                     createdCount += 1;
                     if (createdCount >= actualCreateCount) {
                         finalResponse["status"] = haveFailures ? "partial" : "success";
-                        resObject.json(finalResponse);
+                        res.json(finalResponse);
                     }
                 });
             }

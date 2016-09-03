@@ -6,7 +6,7 @@ var runningSessionLookupMap = {};
 // Details of all the hosts with minions running in them. 
 var minionHostsDetails = [
     {
-        leaderId: "localhost:port",
+        leaderId: "localhost:8081",
         maxMinionsCount: 10,
         trainingSessions: ["sampleSession"],
         runningSessions: []
