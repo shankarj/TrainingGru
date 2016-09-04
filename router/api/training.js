@@ -7,6 +7,19 @@ var trainingUtil = require('../../utils/training.js');
 var genUtils = require('../../utils/general.js');
 var config = require('../../config.js');
 
+router.post('/notifydone/', function(req, res, next) {
+	if ((genUtils.isEmpty(req.body)) || (genUtils.isEmpty(req.body.sessionid)) || (genUtils.isEmpty(req.body.leaderid) || (genUtils.isEmpty(req.body.minionid)))){
+		var response = { status : "error", message : "One or more required params not provided for notifydone."};
+		res.json(response);
+	}else{
+		memory.addToRunningSessions(req.body.sessionid, req.body.leaderid);
+		memory.addToLookupSessions(req.body.sessionid, req.body.minionid);
+		memory.removeTrainingSessionFromLeader(req.body.sessionid, req.body.leaderid);
+
+		res.json({ status : "success", message : "Session id added to list of running sessions."});
+	}
+});
+
 router.post('/start/', function(req, res, next) {
 	if (genUtils.isEmpty(req.body.sessionid)){
 		var response = { status : "error", message : "One or more required params not provided for run."};

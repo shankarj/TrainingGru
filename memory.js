@@ -8,7 +8,7 @@ var minionHostsDetails = [
     {
         leaderId: "localhost:8081",
         maxMinionsCount: 10,
-        trainingSessions: ["sampleSession"],
+        trainingSessions: [],
         runningSessions: []
     }
 ];
@@ -42,12 +42,36 @@ var memoryOperations = {
             }
         }
     },
-    lookupSessions: function (sessionid) {
-        if (runningSessionLookupMap[sessionid] === undefined) {
+    removeTrainingSessionFromLeader: function (sessionId, leaderId) {
+        if ((!genUtils.isEmpty(sessionId)) && (!genUtils.isEmpty(leaderId))) {
+            for (var hostJson of minionHostsDetails) {
+                if (hostJson.leaderId === leaderId) {
+                    var index = hostJson.trainingSessions.indexOf(sessionId);
+                    if (index != -1){
+                        hostJson.trainingSessions.splice(index, 1);
+                    }
+                }
+            }
+        }
+    },
+    addToRunningSessions: function (sessionId, leaderId) {
+        if ((!genUtils.isEmpty(sessionId)) && (!genUtils.isEmpty(leaderId))) {
+            for (var hostJson of minionHostsDetails) {
+                if (hostJson.leaderId === leaderId) {
+                    hostJson.runningSessions.push(sessionId);
+                }
+            }
+        }
+    },
+    lookupSessions: function (sessionId) {
+        if (runningSessionLookupMap[sessionId] === undefined) {
             return null;
         } else {
-            return runningSessionLookupMap[sessionid].minionUrl;
+            return runningSessionLookupMap[sessionId];
         }
+    },
+    addToLookupSessions: function(sessionId, minionId){
+        runningSessionLookupMap[sessionId] = minionId;
     },
     getLeaderWithTrainingSession: function (sessionId) {
         var leaderId = null
