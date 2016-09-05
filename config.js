@@ -1,28 +1,16 @@
 var configs = {
     development: {
-        db: {
-            connectionLimit: 100,
-            host: 'localhost',
-            user: 'root',
-            password: 'rats',
-            database: 'coredb',
-            debug: false
-        },
         leaderMinionPort: 8081,
         trainingScheduleStrategy: "force",
-        minionCreateStrategy: "force"
+        minionCreateStrategy: "force",
+        coreApiEndpoint: "http://localhost:8083",
+        mode: "sandbox"
     }, production: {
-        db: {
-            connectionLimit: 100,
-            host: 'localhost',
-            user: 'root',
-            password: 'rats',
-            database: 'coredb',
-            debug: false
-        },
         leaderMinionPort: 8001,
         trainingScheduleStrategy: "force",
-        minionCreateStrategy: "bestfit"
+        minionCreateStrategy: "bestfit",
+        coreApiEndpoint: "http://localhost:8083",
+        mode: "sandbox"
     },
 };
 

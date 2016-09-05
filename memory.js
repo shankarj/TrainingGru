@@ -1,4 +1,6 @@
 var genUtils = require('./utils/general.js');
+var config = require('./config.js');
+var request = require('request');
 
 // This variable is for quick lookup during sandbox calls for deployed services.
 var runningSessionLookupMap = {};
@@ -47,7 +49,7 @@ var memoryOperations = {
             for (var hostJson of minionHostsDetails) {
                 if (hostJson.leaderId === leaderId) {
                     var index = hostJson.trainingSessions.indexOf(sessionId);
-                    if (index != -1){
+                    if (index != -1) {
                         hostJson.trainingSessions.splice(index, 1);
                     }
                 }
@@ -68,25 +70,77 @@ var memoryOperations = {
             for (var hostJson of minionHostsDetails) {
                 if (hostJson.leaderId === leaderId) {
                     var index = hostJson.runningSessions.indexOf(sessionId);
-                    if (index != -1){
+                    if (index != -1) {
                         hostJson.runningSessions.splice(index, 1);
                     }
                 }
             }
         }
     },
-    lookupSessions: function (sessionId) {
+    lookupSessions: function (sessionId, callback, callbackParams) {
         if (runningSessionLookupMap[sessionId] === undefined) {
-            return null;
+            // Hit the database to update the cache.
+            var options = {
+                url: config[process.env.environment].coreApiEndpoint + "/api/gru/lookupmap/" + config[process.env.environment].mode + "/" + sessionId,
+                method: 'GET'
+            };
+
+            request(options, function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    var resJson = JSON.parse(body);
+                    callbackParams["minionid"] = resJson.minion_id;
+                    if (genUtils.isEmpty(resJson.minion_id)) {
+                        callbackParams.resobj.json({ status: "error", message: "Session id not found in any minion." });
+                    } else {
+                        callback(callbackParams);
+                    }
+                } else {
+                    callbackParams.resobj.json({ status: "error", message: "Error while trying to contact core for routing map lookup on cache miss." });
+                }
+            });
         } else {
-            return runningSessionLookupMap[sessionId];
+            callback(sessionId, runningSessionLookupMap[sessionId], reqBody, resObject);
         }
     },
-    addToLookupSessions: function(sessionId, minionId){
+    addToLookupSessions: function (sessionId, minionId) {
         runningSessionLookupMap[sessionId] = minionId;
+
+        // Update the database as well
+        var options = {
+            url: config[process.env.environment].coreApiEndpoint + "/api/gru/lookupmap/create",
+            method: 'POST',
+            json: {
+                sessionid: sessionId,
+                minionid: minionId,
+                mode: config[process.env.environment].mode
+            }
+        };
+
+        request(options, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+
+            }
+        });
     },
-    removeFromLookupSessions: function(sessionId){
-        delete runningSessionLookupMap[sessionId];
+    removeFromLookupSessions: function (sessionId) {
+        var minionId = runningSessionLookupMap[sessionId];
+        if (!genUtils.isEmpty(minionId)) {
+            delete runningSessionLookupMap[sessionId];
+
+            // Update the database as well
+            var options = {
+                url: config[process.env.environment].coreApiEndpoint + "/api/gru/lookupmap/delete",
+                method: 'POST',
+                json: {
+                    sessionid: sessionId,
+                    minionid: minionId,
+                    mode: config[process.env.environment].mode
+                }
+            };
+
+            request(options, function (error, response, body) {
+            });
+        }
     },
     getLeaderWithTrainingSession: function (sessionId) {
         var leaderId = null

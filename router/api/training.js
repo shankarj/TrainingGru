@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-var database = require('../../database.js');
 var request = require('request');
 var memory = require('../../memory.js');
 var trainingUtil = require('../../utils/training.js');

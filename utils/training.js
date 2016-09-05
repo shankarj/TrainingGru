@@ -4,13 +4,12 @@ var memory = require('../memory.js');
 
 var utilMethods = {
 	deleteTrainingSession: function (sessionId, minionLeaderId, resObject) {
-		var minionLeaderUrl = "http://" + minionLeaderId.split(":")[0] + ":" + config[process.env.environment].leaderMinionPort;
+		var minionLeaderUrl = "http://" + minionLeaderId;
 		var options = {
-			url: minionLeaderUrl + "/training/delete/",
+			url: minionLeaderUrl + "/api/training/delete/",
 			method: 'POST',
 			json: {
 				"sessionid": sessionId,
-				"authtoken": ""
 			}
 		};
 
@@ -27,33 +26,33 @@ var utilMethods = {
 	deleteAndCreateSession: function (sessionId, minionLeaderId, resObject, scheduleStrategy) {		
 		// Delete it from the leader.
 		var minionLeaderUrl = "http://" + minionLeaderId;
-			var options = {
-				url: minionLeaderUrl + "/api/training/delete/",
-				method: 'POST',
-				json: {
-					"sessionid": sessionId,
-				}
-			};
+		var options = {
+			url: minionLeaderUrl + "/api/training/delete/",
+			method: 'POST',
+			json: {
+				"sessionid": sessionId,
+			}
+		};
 
-			request(options, function (error, response, body) {
-				var successDelete = false;
-				if (!error && response.statusCode == 200) {
-					if (body.status == "success"){
-						// Delete it from the lookup table.
-						memory.removeFromLookupSessions(sessionId);
+		request(options, function (error, response, body) {
+			var successDelete = false;
+			if (!error && response.statusCode == 200) {
+				if (body.status == "success"){
+					// Delete it from the lookup table.
+					memory.removeFromLookupSessions(sessionId);
 
-						// Delete it from the running sessions.
-						memory.removeFromRunningSessions(sessionId, minionLeaderId);
-						
-						// Create a new session.
-						utilMethods.createSession(sessionId, resObject, scheduleStrategy);
-					}else{
-						resObject.json({ status: "error", message: body.message });
-					}
-				} else {
-					resObject.json({ status: "error", message: "Error while trying to contact leader minion to delete the previously running session." });
+					// Delete it from the running sessions.
+					memory.removeFromRunningSessions(sessionId, minionLeaderId);
+					
+					// Create a new session.
+					utilMethods.createSession(sessionId, resObject, scheduleStrategy);
+				}else{
+					resObject.json({ status: "error", message: body.message });
 				}
-			});
+			} else {
+				resObject.json({ status: "error", message: "Error while trying to contact leader minion to delete the previously running session." });
+			}
+		});
 	},
 	createSession: function (sessionId, resObject, scheduleStrategy) {
 		var strategy = scheduleStrategy === undefined ? config[process.env.environment].trainingScheduleStrategy : scheduleStrategy;

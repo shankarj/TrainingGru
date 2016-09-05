@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-var database = require('../../database.js');
 var request = require('request');
 var memory = require('../../memory.js');
 
@@ -9,16 +8,32 @@ router.post('/run/:sessionid', function(req, res, next) {
     var response = { status : "error", message : "One or more required params not provided for run."};
     res.json(response);
   }else{
-    var minionId= memory.lookupSessions(req.params.sessionid);
+    var callbackParams = {
+      sessionid: req.params.sessionid,
+      reqbody: req.body,
+      resobj: res 
+    }
+    memory.lookupSessions(req.params.sessionid, callbackForDbLookup, callbackParams);
+  }
+});
 
-    if (minionId === null){
+function callbackForDbLookup(callbackParams){
+  if (minionId === null){
       var response = { status : "error", message : "Given session id not running in any of the minions."};
       res.json(response);
     }else{
+      // Update lookup map local
+      var sessionId = callbackParams.sessionid;
+      var minionId = callbackParams.minionid;
+      var reqBody = callbackParams.reqbody
+      var res = callbackParams.resobj;
+      
+      memory.addToLookupSessions(sessionId, minionId);
+
       var options = {        
-				url :  "http://" + minionId + "/minion/run/" + req.params.sessionid,
+				url :  "http://" + minionId + "/minion/run/" + sessionId,
 				method : 'POST',
-				json: req.body
+				json: reqBody
       };
 
       request(options, function (error, response, body) {
@@ -30,7 +45,6 @@ router.post('/run/:sessionid', function(req, res, next) {
         }
       });        
     }
-  }
-});
+}
 
 module.exports = router;
