@@ -33,7 +33,7 @@ var memoryOperations = {
 
         return choosenHost;
     },
-    addTrainingSessionToLeader: function (sessionId, leaderId) {
+    addToTrainingSessions: function (sessionId, leaderId) {
         if ((!genUtils.isEmpty(sessionId)) && (!genUtils.isEmpty(leaderId))) {
             for (var hostJson of minionHostsDetails) {
                 if (hostJson.leaderId === leaderId) {
@@ -42,7 +42,7 @@ var memoryOperations = {
             }
         }
     },
-    removeTrainingSessionFromLeader: function (sessionId, leaderId) {
+    removeFromTrainingSessions: function (sessionId, leaderId) {
         if ((!genUtils.isEmpty(sessionId)) && (!genUtils.isEmpty(leaderId))) {
             for (var hostJson of minionHostsDetails) {
                 if (hostJson.leaderId === leaderId) {
@@ -63,6 +63,18 @@ var memoryOperations = {
             }
         }
     },
+    removeFromRunningSessions: function (sessionId, leaderId) {
+        if ((!genUtils.isEmpty(sessionId)) && (!genUtils.isEmpty(leaderId))) {
+            for (var hostJson of minionHostsDetails) {
+                if (hostJson.leaderId === leaderId) {
+                    var index = hostJson.runningSessions.indexOf(sessionId);
+                    if (index != -1){
+                        hostJson.runningSessions.splice(index, 1);
+                    }
+                }
+            }
+        }
+    },
     lookupSessions: function (sessionId) {
         if (runningSessionLookupMap[sessionId] === undefined) {
             return null;
@@ -72,6 +84,9 @@ var memoryOperations = {
     },
     addToLookupSessions: function(sessionId, minionId){
         runningSessionLookupMap[sessionId] = minionId;
+    },
+    removeFromLookupSessions: function(sessionId){
+        delete runningSessionLookupMap[sessionId];
     },
     getLeaderWithTrainingSession: function (sessionId) {
         var leaderId = null

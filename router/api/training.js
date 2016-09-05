@@ -14,7 +14,7 @@ router.post('/notifydone/', function(req, res, next) {
 	}else{
 		memory.addToRunningSessions(req.body.sessionid, req.body.leaderid);
 		memory.addToLookupSessions(req.body.sessionid, req.body.minionid);
-		memory.removeTrainingSessionFromLeader(req.body.sessionid, req.body.leaderid);
+		memory.removeFromTrainingSessions(req.body.sessionid, req.body.leaderid);
 
 		res.json({ status : "success", message : "Session id added to list of running sessions."});
 	}
@@ -25,14 +25,20 @@ router.post('/start/', function(req, res, next) {
 		var response = { status : "error", message : "One or more required params not provided for run."};
 		res.json(response);
 	}else{
-		var minionLeaderId = memory.getLeaderWithRunningSession(req.body.sessionid);
-		
-		// If session is already running in a minion then delete it and create a new training session.
+		var minionLeaderId = memory.getLeaderWithTrainingSession(req.body.sessionid);
+
 		if (minionLeaderId != null){
-			// Need a check here to see if the user has paid for a dedicated machine.
-			trainingUtil.deleteAndCreateSession(req.body.sessionid, minionLeaderId, res, req.body.scheduleStrategy);
+			// Error. The service is being trained somewhere already.
+			res.json({ status : "error", message : "This service is being trained already. Delete it before issuing a new training request."});
 		}else{
-			trainingUtil.createSession(req.body.sessionid, res)
+			// If session is already running in a minion then delete it and create a new training session.
+			minionLeaderId = memory.getLeaderWithRunningSession(req.body.sessionid);
+			if (minionLeaderId != null){
+				// Need a check here to see if the user has paid for a dedicated machine.
+				trainingUtil.deleteAndCreateSession(req.body.sessionid, minionLeaderId, res, req.body.scheduleStrategy);
+			}else{
+				trainingUtil.createSession(req.body.sessionid, res)
+			}
 		}
 	}
 });
