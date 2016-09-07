@@ -15,7 +15,21 @@ router.post('/notifydone/', function(req, res, next) {
 		memory.addToLookupSessions(req.body.sessionid, req.body.minionid);
 		memory.removeFromTrainingSessions(req.body.sessionid, req.body.leaderid);
 
-		res.json({ status : "success", message : "Session id added to list of running sessions."});
+		// Create a new snapshot from the new structure and conns. 
+		var options = {
+			url :  config[process.env.environment].coreApiEndpoint + "/api/snapshots/create",
+			method : 'POST',
+			json: req.body
+		};
+
+		request(options, function (error, response, body) {
+			var successDelete = false;
+			if (!error && response.statusCode == 200) {
+				res.json(body);				
+			}else{
+				res.json({ status : "error", message : "Error while contacting core to create new snapshot."});
+			}				
+		});
 	}
 });
 

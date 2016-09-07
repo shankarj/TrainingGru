@@ -88,10 +88,10 @@ var memoryOperations = {
             request(options, function (error, response, body) {
                 if (!error && response.statusCode == 200) {
                     var resJson = JSON.parse(body);
-                    callbackParams["minionid"] = resJson.minion_id;
-                    if (genUtils.isEmpty(resJson.minion_id)) {
+                    if (genUtils.isEmpty(resJson.minionid)) {
                         callbackParams.resobj.json({ status: "error", message: "Session id not found in any minion." });
                     } else {
+                        callbackParams["minionid"] = resJson.minionid;
                         callback(callbackParams);
                     }
                 } else {
@@ -99,7 +99,8 @@ var memoryOperations = {
                 }
             });
         } else {
-            callback(sessionId, runningSessionLookupMap[sessionId], reqBody, resObject);
+            callbackParams["minionid"] = runningSessionLookupMap[sessionId];
+            callback(callbackParams);
         }
     },
     addToLookupSessions: function (sessionId, minionId) {
