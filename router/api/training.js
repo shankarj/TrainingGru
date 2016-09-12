@@ -11,11 +11,14 @@ router.post('/notifydone/', function(req, res, next) {
 		var response = { status : "error", message : "One or more required params not provided for notifydone."};
 		res.json(response);
 	}else{
-		memory.addToRunningSessions(req.body.sessionid, req.body.leaderid);
-		memory.addToLookupSessions(req.body.sessionid, req.body.minionid, true);
 		memory.removeFromTrainingSessions(req.body.sessionid, req.body.leaderid);
 
-		// Create a new snapshot only if a training profile id is given
+		if (req.body.training_success){
+			memory.addToLookupSessions(req.body.sessionid, req.body.minionid, true);
+			memory.addToRunningSessions(req.body.sessionid, req.body.leaderid);
+		}
+
+		// Create a new snapshot only if training was done.
 		if (req.body.create_new_snapshot === true){
 			// Create a new snapshot from the new structure and conns. 
 			var options = {
@@ -32,6 +35,8 @@ router.post('/notifydone/', function(req, res, next) {
 					res.json({ status : "error", message : "Error while contacting core to create new snapshot."});
 				}				
 			});
+		}else{
+			res.json({ status : "success", message : "Maps updated."});
 		}
 	}
 });
