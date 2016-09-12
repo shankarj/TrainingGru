@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var request = require('request');
 var memory = require('../../memory.js');
+var genUtils = require('../../utils/general.js');
 
 router.post('/run/:sessionid', function(req, res, next) {
   if (req.params.sessionid === undefined){
@@ -18,17 +19,15 @@ router.post('/run/:sessionid', function(req, res, next) {
 });
 
 function callbackForDbLookup(callbackParams){
-  if (minionId === null){
+  var res = callbackParams.resobj;
+  if (genUtils.isEmpty(callbackParams.minionid)){
       var response = { status : "error", message : "Given session id not running in any of the minions."};
       res.json(response);
     }else{
       // Update lookup map local
       var sessionId = callbackParams.sessionid;
       var minionId = callbackParams.minionid;
-      var reqBody = callbackParams.reqbody
-      var res = callbackParams.resobj;
-      
-      memory.addToLookupSessions(sessionId, minionId);
+      var reqBody = callbackParams.reqbody;
 
       var options = {        
 				url :  "http://" + minionId + "/minion/run/" + sessionId,

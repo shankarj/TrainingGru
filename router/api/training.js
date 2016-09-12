@@ -12,24 +12,27 @@ router.post('/notifydone/', function(req, res, next) {
 		res.json(response);
 	}else{
 		memory.addToRunningSessions(req.body.sessionid, req.body.leaderid);
-		memory.addToLookupSessions(req.body.sessionid, req.body.minionid);
+		memory.addToLookupSessions(req.body.sessionid, req.body.minionid, true);
 		memory.removeFromTrainingSessions(req.body.sessionid, req.body.leaderid);
 
-		// Create a new snapshot from the new structure and conns. 
-		var options = {
-			url :  config[process.env.environment].coreApiEndpoint + "/api/snapshots/create",
-			method : 'POST',
-			json: req.body
-		};
+		// Create a new snapshot only if a training profile id is given
+		if (req.body.create_new_snapshot === true){
+			// Create a new snapshot from the new structure and conns. 
+			var options = {
+				url :  config[process.env.environment].coreApiEndpoint + "/api/snapshots/create",
+				method : 'POST',
+				json: req.body
+			};
 
-		request(options, function (error, response, body) {
-			var successDelete = false;
-			if (!error && response.statusCode == 200) {
-				res.json(body);				
-			}else{
-				res.json({ status : "error", message : "Error while contacting core to create new snapshot."});
-			}				
-		});
+			request(options, function (error, response, body) {
+				var successDelete = false;
+				if (!error && response.statusCode == 200) {
+					res.json(body);				
+				}else{
+					res.json({ status : "error", message : "Error while contacting core to create new snapshot."});
+				}				
+			});
+		}
 	}
 });
 

@@ -87,11 +87,12 @@ var memoryOperations = {
 
             request(options, function (error, response, body) {
                 if (!error && response.statusCode == 200) {
-                    var resJson = JSON.parse(body);
-                    if (genUtils.isEmpty(resJson.minionid)) {
+                    var dbResponse = JSON.parse(body);
+                    if (genUtils.isEmpty(dbResponse.minion_id)) {
                         callbackParams.resobj.json({ status: "error", message: "Session id not found in any minion." });
                     } else {
-                        callbackParams["minionid"] = resJson.minionid;
+                        memoryOperations.addToLookupSessions(sessionId, dbResponse.minion_id, false);
+                        callbackParams["minionid"] = dbResponse.minion_id;
                         callback(callbackParams);
                     }
                 } else {
@@ -103,25 +104,27 @@ var memoryOperations = {
             callback(callbackParams);
         }
     },
-    addToLookupSessions: function (sessionId, minionId) {
+    addToLookupSessions: function (sessionId, minionId, dbCreate) {
         runningSessionLookupMap[sessionId] = minionId;
 
-        // Update the database as well
-        var options = {
-            url: config[process.env.environment].coreApiEndpoint + "/api/gru/lookupmap/create",
-            method: 'POST',
-            json: {
-                sessionid: sessionId,
-                minionid: minionId,
-                mode: config[process.env.environment].mode
-            }
-        };
+        if (dbCreate){
+            // Update the database as well
+            var options = {
+                url: config[process.env.environment].coreApiEndpoint + "/api/gru/lookupmap/create",
+                method: 'POST',
+                json: {
+                    sessionid: sessionId,
+                    minionid: minionId,
+                    mode: config[process.env.environment].mode
+                }
+            };
 
-        request(options, function (error, response, body) {
-            if (!error && response.statusCode == 200) {
+            request(options, function (error, response, body) {
+                if (!error && response.statusCode == 200) {
 
-            }
-        });
+                }
+            });
+        }
     },
     removeFromLookupSessions: function (sessionId) {
         var minionId = runningSessionLookupMap[sessionId];
